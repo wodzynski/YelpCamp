@@ -17,9 +17,13 @@
           </button>
           <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-              <a class="nav-item nav-link" href="/login">Login</a>
-              <a class="nav-item nav-link" href="/register">Sing Up</a>
-              <a class="nav-item nav-link" href="/logout">Logout</a>
+              <% if(!currentUser){ %>
+                <a class="nav-item nav-link" href="/login">Login</a>
+                <a class="nav-item nav-link" href="/register">Sing Up</a>
+              <% } else { %>
+                <span class="navbar-text">Signed In As <%= currentUser.username %></span>
+                <a class="nav-item nav-link" href="/logout">Logout</a>
+              <% } %>
             </div>
           </div>
         </div>
