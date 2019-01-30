@@ -17,6 +17,9 @@
           <h4 class="card-title float-right">$9.00/night</h4>
           <h4 class="card-title"><a><%= campground.name %></a></h4>
           <p class="card-text"><%= campground.description %></p>
+          <p class="card-text">
+            <em>Submited by: <%= campground.author.username %></em>
+          </p>
         </div>
       </div>
       <div class="card">
