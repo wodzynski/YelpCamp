@@ -9,7 +9,9 @@
         <li class="list-group-item">Info 2</li>
         <li class="list-group-item">Info 3</li>
       </div>
-      <a class="btn btn-warning btn-block my-2" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+      <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+        <a class="btn btn-warning btn-block my-2" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+      <% } %>
     </div>
     <div class="col-md-9">
       <div class="card mb-3">
