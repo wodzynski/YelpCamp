@@ -59,53 +59,58 @@ router.get('/:id', (req, res) => {
 });
 
 // EDIT CAMPGROUND ROUTE
-router.get('/:id/edit', (req, res) => {
+router.get('/:id/edit', doesLoggedUserMatch, (req, res) => {
   Campground.findById(req.params.id, (err, foundCampground) => {
-    if(err){
-      res.redirect('/campgrounds');
-    } else {
-      res.render('campgrounds/edit', {campground: foundCampground});
-    }
+    res.render('campgrounds/edit', {campground: foundCampground});
   });
 });
 
 // UPDATE CAMPGROUND ROUTE
-router.put('/:id', (req, res) => {
+router.put('/:id', doesLoggedUserMatch, (req, res) => {
   // find and update the correct campground
   Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampground) => {
-    if(err){
-      res.redirect('/campgrounds');
-    } else {
-      // redirect to edited show page
-      res.redirect(`/campgrounds/${req.params.id}`);
-    }
+    // redirect to edited show page
+    res.redirect(`/campgrounds/${req.params.id}`);
   });
 });
 
 // DESTROY CAMPGROUND ROUTE
-
 mongoose.set('useFindAndModify', false);
 
-router.delete('/:id', (req, res) => {
-  Campground.findByIdAndRemove(req.params.id, (err, campground) => {
-    if(err){
-      res.redirect('/campgrounds');
+router.delete('/:id', doesLoggedUserMatch, (req, res) => {
+  Campground.findByIdAndRemove(req.params.id, (err, campground) => {Comment.deleteMany({_id: {$in: campground.comments}}, err => {
+    if(err) {
+      console.log(err);
     }
-    Comment.deleteMany({_id: {$in: campground.comments}}, err => {
-      if(err) {
-        console.log(err);
-      }
-      res.redirect('/campgrounds');
+    res.redirect('/campgrounds');
     });
   });
 });
 
-// middleware
+// middlewares
 function isLoggedIn(req, res, next){
   if(req.isAuthenticated()){
     return next();
   }
   res.redirect('/login');
+}
+
+function doesLoggedUserMatch(req, res, next){
+  if(req.isAuthenticated()){
+    Campground.findById(req.params.id, (err, foundCampground) => {
+      if(err){
+        res.redirect('back');
+      } else {
+        if(foundCampground.author.id.equals(req.user._id)) {
+          next();
+        } else {
+          res.redirect('back');
+        }
+      }
+    });
+  } else {
+    res.redirect('back');
+  }
 }
 
 module.exports = router;
