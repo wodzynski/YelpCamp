@@ -2,7 +2,8 @@ const express     = require('express'),
       router      = express.Router(),
       mongoose    = require('mongoose'),
       Campground  = require('../models/campground'),
-      Comment     = require('../models/comment');
+      Comment     = require('../models/comment'),
+      middleware  = require('../middleware');
 
 router.get('/', (req, res) => {
   //GET all campgrounds from DB
@@ -17,7 +18,7 @@ router.get('/', (req, res) => {
 });
 
 //CREATE - add new campground to DB
-router.post('/', isLoggedIn, (req, res) => {
+router.post('/', middleware.isLoggedIn, (req, res) => {
   //get data from form and add to campground array
   const name = req.body.name;
   const image = req.body.image;
@@ -40,7 +41,7 @@ router.post('/', isLoggedIn, (req, res) => {
 
 //NEW - show form to create new campground
 //executed before INFO because of the order
-router.get('/new',isLoggedIn, (req, res) => {
+router.get('/new', middleware.isLoggedIn, (req, res) => {
   res.render('campgrounds/new.ejs');
 });
 
@@ -59,14 +60,14 @@ router.get('/:id', (req, res) => {
 });
 
 // EDIT CAMPGROUND ROUTE
-router.get('/:id/edit', doesLoggedUserMatch, (req, res) => {
+router.get('/:id/edit', middleware.doesLoggedUserMatch, (req, res) => {
   Campground.findById(req.params.id, (err, foundCampground) => {
     res.render('campgrounds/edit', {campground: foundCampground});
   });
 });
 
 // UPDATE CAMPGROUND ROUTE
-router.put('/:id', doesLoggedUserMatch, (req, res) => {
+router.put('/:id', middleware.doesLoggedUserMatch, (req, res) => {
   // find and update the correct campground
   Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, updatedCampground) => {
     // redirect to edited show page
@@ -77,7 +78,7 @@ router.put('/:id', doesLoggedUserMatch, (req, res) => {
 // DESTROY CAMPGROUND ROUTE
 mongoose.set('useFindAndModify', false);
 
-router.delete('/:id', doesLoggedUserMatch, (req, res) => {
+router.delete('/:id', middleware.doesLoggedUserMatch, (req, res) => {
   Campground.findByIdAndRemove(req.params.id, (err, campground) => {Comment.deleteMany({_id: {$in: campground.comments}}, err => {
     if(err) {
       console.log(err);
@@ -86,31 +87,5 @@ router.delete('/:id', doesLoggedUserMatch, (req, res) => {
     });
   });
 });
-
-// middlewares
-function isLoggedIn(req, res, next){
-  if(req.isAuthenticated()){
-    return next();
-  }
-  res.redirect('/login');
-}
-
-function doesLoggedUserMatch(req, res, next){
-  if(req.isAuthenticated()){
-    Campground.findById(req.params.id, (err, foundCampground) => {
-      if(err){
-        res.redirect('back');
-      } else {
-        if(foundCampground.author.id.equals(req.user._id)) {
-          next();
-        } else {
-          res.redirect('back');
-        }
-      }
-    });
-  } else {
-    res.redirect('back');
-  }
-}
 
 module.exports = router;
