@@ -42,6 +42,12 @@
                     <div class="clearfix">
                       <h5 class="float-left"><%= comment.author.username %></h5>
                       <span class="float-right">10 April</span>
+                      <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="float-right btn btn-sm btn-link comment-link mr-2" href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit"  role="button">Edit</a>
+                        <form class="float-right mb-0" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST">
+                          <button class="btn btn-sm btn-link comment-link">Delete</button>
+                        </form>
+                      <% } %>
                     </div>
                     <%= comment.text %>
                 </div>
@@ -53,6 +59,5 @@
     </div>
   </div>
 </div>
-
 
 <% include ../partials/footer %>

@@ -54,7 +54,7 @@ function seedDB(){
             // create a comment
             Comment.create(
               {
-                text: 'This iplace is great, but I wish there was internet',
+                text: 'This place is great, but I wish there was an internet',
                 author:{
                     id : '588c2e092403d111454fff76',
                     username: 'Homer'
