@@ -1,6 +1,8 @@
 const express     = require('express'),
       router      = express.Router(),
-      Campground  = require('../models/campground');
+      mongoose    = require('mongoose'),
+      Campground  = require('../models/campground'),
+      Comment     = require('../models/comment');
 
 router.get('/', (req, res) => {
   //GET all campgrounds from DB
@@ -64,8 +66,8 @@ router.get('/:id/edit', (req, res) => {
     } else {
       res.render('campgrounds/edit', {campground: foundCampground});
     }
-  })
-})
+  });
+});
 
 // UPDATE CAMPGROUND ROUTE
 router.put('/:id', (req, res) => {
@@ -81,13 +83,20 @@ router.put('/:id', (req, res) => {
 });
 
 // DESTROY CAMPGROUND ROUTE
+
+mongoose.set('useFindAndModify', false);
+
 router.delete('/:id', (req, res) => {
-  Campground.findByIdAndRemove(req.params.id, err => {
+  Campground.findByIdAndRemove(req.params.id, (err, campground) => {
     if(err){
       res.redirect('/campgrounds');
-    } else {
-      res.redirect('/campgrounds');
     }
+    Comment.deleteMany({_id: {$in: campground.comments}}, err => {
+      if(err) {
+        console.log(err);
+      }
+      res.redirect('/campgrounds');
+    });
   });
 });
 
