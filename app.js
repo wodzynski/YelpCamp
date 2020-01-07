@@ -9,16 +9,17 @@ const express         = require('express'),
       Campground      = require('./models/campground'),
       Comment         = require('./models/comment'),
       User            = require('./models/user'),
-      seedDB          = require('./seeds');
+      seedDB          = require('./seeds'),
+      envVar          = require('dotenv').config({path: __dirname + '/.env'});
 
 // requiring routes
 const commentRoutes     = require('./routes/comments'),
       campgroundRoutes  = require('./routes/campgrounds'),
       indexRoutes       = require('./routes/index');
 
-require('dotenv').config({path: __dirname + '/.env'});
-
-mongoose.connect(process.env.DATABASEURL, {useNewUrlParser: true, useUnifiedTopology: true});
+//connecting to the mongoose db
+const url = process.env.DATABASEURL || 'mongodb://localhost:27017/yelp_camp';
+mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true});
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
